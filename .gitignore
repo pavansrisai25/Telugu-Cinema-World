@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Secrets and local database
+.env
+*.db
+
+# Frontend (Phase 4)
+node_modules/
+dist/
+
+# Editor and OS
+.vscode/
+.DS_Store
