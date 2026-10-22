@@ -22,6 +22,7 @@ class Film(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     tmdb_id: Mapped[Optional[int]] = mapped_column(Integer, unique=True)
+    imdb_id: Mapped[Optional[str]] = mapped_column(String(15), unique=True)  # e.g. "tt1234567"
     title: Mapped[str] = mapped_column(String(200), index=True)
     language: Mapped[str] = mapped_column(String(30), index=True)
     release_date: Mapped[Optional[date]] = mapped_column(Date)
@@ -30,6 +31,7 @@ class Film(Base):
 
     # Budget (reported). Provenance columns satisfy the "Reported" rule.
     budget_cr: Mapped[Optional[float]] = mapped_column(Float)
+    budget_cr_max: Mapped[Optional[float]] = mapped_column(Float)  # only if a range is reported
     budget_original_amount: Mapped[Optional[float]] = mapped_column(Float)
     budget_original_currency: Mapped[Optional[str]] = mapped_column(String(10))
     budget_note: Mapped[Optional[str]] = mapped_column(Text)  # conversion note
