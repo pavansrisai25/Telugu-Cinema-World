@@ -18,3 +18,19 @@ python -m app.seed
 uvicorn app.main:app --reload
 ```
 Health check: http://127.0.0.1:8000/api/health
+
+## Phase 2: Data loaders
+```bash
+python -m app.loaders.tmdb_loader        # film details, cast/crew, TMDB rating
+python -m app.loaders.imdb_loader        # IMDb rating (official dataset)
+python -m app.loaders.csv_import budgets
+python -m app.loaders.csv_import collections
+python -m app.loaders.report             # data coverage per film
+```
+Budgets and collections come from `backend/data/*.csv`, each row with source name,
+URL and fetch date, and are labelled "Reported".
+
+## Attribution
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+Ratings information courtesy of IMDb (https://www.imdb.com), used under its
+non-commercial dataset terms.
