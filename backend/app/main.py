@@ -1,23 +1,34 @@
-"""FastAPI entry point. More endpoints are added in Phase 3."""
+"""FastAPI entry point."""
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import models  # noqa: F401  (registers the tables)
 from app.config import settings
 from app.database import Base, engine
-from app import models  # noqa: F401  (registers the tables)
+from app.routers import analytics, extras, films
 
-# Create tables if they don't exist yet (Alembic migrations can come later).
-Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Telugu Cinema to the World API", version="0.1.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create tables if missing (Alembic migrations can come later).
+    Base.metadata.create_all(bind=engine)
+    yield
 
-# Allow the React dev server to call this API.
+
+app = FastAPI(title="Telugu Cinema to the World API", version="0.3.0", lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(films.router)
+app.include_router(analytics.router)
+app.include_router(extras.router)
 
 
 @app.get("/api/health")
