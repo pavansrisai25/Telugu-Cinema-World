@@ -34,3 +34,14 @@ URL and fetch date, and are labelled "Reported".
 This product uses the TMDB API but is not endorsed or certified by TMDB.
 Ratings information courtesy of IMDb (https://www.imdb.com), used under its
 non-commercial dataset terms.
+
+## Phase 3: API
+```bash
+cd backend
+python -m pytest -v                  # 22 tests on a fake in-memory database
+uvicorn app.main:app --reload        # then open http://127.0.0.1:8000/docs
+```
+Endpoints: `/api/search`, `/api/films/{id}`, `/api/people/{id}`, `/api/analytics/*`,
+`/api/compare`, `/api/network`, `/api/varanasi`, `/api/health`.
+Missing data is returned as null with the label "Not available", never as zero.
+Analytics cover the dataset's films only, not the whole industry.
