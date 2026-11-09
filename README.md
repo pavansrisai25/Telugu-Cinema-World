@@ -45,3 +45,16 @@ Endpoints: `/api/search`, `/api/films/{id}`, `/api/people/{id}`, `/api/analytics
 `/api/compare`, `/api/network`, `/api/varanasi`, `/api/health`.
 Missing data is returned as null with the label "Not available", never as zero.
 Analytics cover the dataset's films only, not the whole industry.
+
+## Phase 4A: Frontend (React + Vite + Tailwind)
+Run the backend and the frontend in two terminals:
+
+    cd backend
+    uvicorn app.main:app --reload
+
+    cd frontend
+    npm install
+    npm run dev
+
+Open http://localhost:5173. Pages: home with search and top grossers, and a film page.
+Every money figure is labelled "Reported" with its source link. Missing values show "Not available".
