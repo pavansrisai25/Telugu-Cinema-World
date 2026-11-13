@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.config import settings
 from app.loaders.cleaning import norm_key
-from app.models import Collection, Film, FilmCrew, Person
+from app.models import Collection, Film, FilmCrew, Person, Rating
 
 REPORTED = "Reported"
 NOT_AVAILABLE = "Not available"
@@ -151,16 +151,21 @@ def load_all_films(db: Session) -> list[Film]:
 
 def search_films(db: Session, q: str, limit: int = 10) -> list[dict]:
     """Autocomplete. Ignores case, spaces and punctuation ('kgf chapter 2' finds
-    'KGF: Chapter 2'). Fine for a few hundred films; use SQL search if it grows."""
+    'KGF: Chapter 2'). Titles starting with the query come first, then films with the
+    most TMDB votes, so famous films beat obscure ones."""
     nq = norm_key(q)
     if not nq:
         return []
-    hits = [f for f in db.scalars(select(Film)).all() if nq in norm_key(f.title)]
-    hits.sort(key=lambda f: (
-        not norm_key(f.title).startswith(nq),                # title starts with query first
-        -(f.release_date.toordinal() if f.release_date else 0),  # then newest first
-    ))
-    return [film_summary(f) for f in hits[:limit]]
+    rows = db.execute(
+        select(Film.id, Film.title, Rating.vote_count)
+        .select_from(Film)
+        .join(Rating, (Rating.film_id == Film.id) & (Rating.source == "tmdb"), isouter=True)
+    ).all()
+    hits = [r for r in rows if nq in norm_key(r.title)]
+    hits.sort(key=lambda r: (not norm_key(r.title).startswith(nq), -(r.vote_count or 0), r.title))
+    ids = [r.id for r in hits[:limit]]
+    films = {f.id: f for f in db.scalars(select(Film).where(Film.id.in_(ids)))}
+    return [film_summary(films[i]) for i in ids]
 
 
 def similar_films(db: Session, film: Film, limit: int = 6) -> list[dict]:
@@ -309,10 +314,9 @@ def language_share(films: list[Film]) -> dict:
 
 
 def pan_india(films: list[Film], language: str = "Telugu") -> dict:
-    chosen = sorted(
-        (f for f in films if f.language == language and f.status == "released"),
-        key=lambda f: f.release_date or date.max,
-    )
+    all_language = [f for f in films if f.language == language and f.status == "released"]
+    chosen = sorted((f for f in all_language if f.collections),
+                    key=lambda f: f.release_date or date.max)
     rows = []
     for f in chosen:
         india, hindi, overseas, ww = (amount(f, m) for m in
@@ -327,6 +331,7 @@ def pan_india(films: list[Film], language: str = "Telugu") -> dict:
         "language": language,
         "coverage": {
             "films": len(rows),
+            "films_in_dataset": len(all_language),
             "with_hindi_belt": sum(r["hindi_belt_cr"] is not None for r in rows),
             "with_overseas": sum(r["overseas_cr"] is not None for r in rows),
         },
@@ -411,7 +416,7 @@ def build_network(db: Session, roles: list[str], min_weight: int = 1) -> dict:
 def varanasi_watch(db: Session, today: Optional[date] = None, share_pct: float = 100.0) -> Optional[dict]:
     today = today or date.today()
     film = db.scalar(
-        select(Film).where(Film.title == "Varanasi")
+        select(Film).where(Film.title == "Varanasi").order_by(Film.id)
         .options(selectinload(Film.collections), selectinload(Film.ratings))
     )
     if film is None:

@@ -4,7 +4,11 @@ import { api } from "../api";
 import { year } from "../lib/format";
 import Poster from "./Poster";
 
-export default function SearchBox({ large = false }) {
+export default function SearchBox({
+  large = false,
+  onSelect,
+  placeholder = "Search a film, e.g. Baahubali, RRR, Varanasi",
+}) {
   const navigate = useNavigate();
   const listId = useId();
   const [q, setQ] = useState("");
@@ -32,7 +36,8 @@ export default function SearchBox({ large = false }) {
   }, [q]);
 
   function go(film) {
-    navigate(`/film/${film.id}`);
+    if (onSelect) onSelect(film);
+    else navigate(`/film/${film.id}`);
     setOpen(false);
     setQ("");
   }

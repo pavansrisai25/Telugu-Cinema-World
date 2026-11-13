@@ -4,7 +4,13 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Film from "./pages/Film";
-import { ComingSoon, NotFound } from "./pages/Simple";
+import Overview from "./pages/Overview";
+import LanguageShare from "./pages/LanguageShare";
+import PanIndia from "./pages/PanIndia";
+import BudgetVsCollection from "./pages/BudgetVsCollection";
+import Hero from "./pages/Hero";
+import Duel from "./pages/Duel";
+import { NotFound } from "./pages/Simple";
 
 export default function App() {
   const location = useLocation();
@@ -28,8 +34,12 @@ export default function App() {
           <Routes location={location}>
             <Route path="/" element={<Home />} />
             <Route path="/film/:id" element={<Film />} />
-            <Route path="/person/:id" element={<ComingSoon title="Hero view" phase="Phase 4B" />} />
-            <Route path="/duel" element={<ComingSoon title="Duel mode" phase="Phase 4B" />} />
+            <Route path="/person/:id" element={<Hero />} />
+            <Route path="/duel" element={<Duel />} />
+            <Route path="/analytics" element={<Overview />} />
+            <Route path="/analytics/language-share" element={<LanguageShare />} />
+            <Route path="/analytics/pan-india" element={<PanIndia />} />
+            <Route path="/analytics/budget" element={<BudgetVsCollection />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </motion.main>

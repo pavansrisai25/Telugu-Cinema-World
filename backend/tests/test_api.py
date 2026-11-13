@@ -109,6 +109,7 @@ def test_pan_india_only_where_a_source_states_it(client):
     data = client.get("/api/analytics/pan-india").json()
     assert data["coverage"]["with_hindi_belt"] == 1
     by_title = {f["title"]: f for f in data["films"]}
+    assert "Delta" not in by_title                       # no Reported figure, so not listed
     assert by_title["Alpha"]["hindi_belt_share_pct"] == 25.0    # 100 / 400
     assert by_title["Alpha"]["overseas_share_pct"] == 20.0      # 120 / 600
     assert by_title["Beta"]["hindi_belt_share_pct"] is None

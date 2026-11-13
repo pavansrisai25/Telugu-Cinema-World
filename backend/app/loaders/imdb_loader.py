@@ -45,16 +45,18 @@ def main():
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
         films = db.scalars(select(Film).order_by(Film.release_date)).all()
+        done = no_id = missing = 0
         for film in films:
             if not film.imdb_id:
-                print(f"SKIP {film.title:<32} no imdb_id (run tmdb_loader first, or not on TMDB)")
+                no_id += 1
             elif film.imdb_id in ratings.index:
                 row = ratings.loc[film.imdb_id]
                 upsert_rating(db, film.id, "imdb", float(row["averageRating"]), int(row["numVotes"]))
-                print(f"OK   {film.title:<32} {film.imdb_id}  {row['averageRating']} ({int(row['numVotes'])} votes)")
+                done += 1
             else:
-                print(f"SKIP {film.title:<32} {film.imdb_id} not in dataset")
+                missing += 1
         db.commit()
+    print(f"IMDb ratings saved: {done}. No imdb_id yet: {no_id}. Not in IMDb dataset: {missing}.")
 
 
 if __name__ == "__main__":

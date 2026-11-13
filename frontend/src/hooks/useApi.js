@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 
-/** Loads `path` and returns { data, error, loading }. Cancels stale requests. */
+/** Loads `path` and returns { data, error, loading }. A null path means "don't load". */
 export function useApi(path) {
-  const [state, setState] = useState({ data: null, error: null, loading: true });
+  const [state, setState] = useState({ data: null, error: null, loading: Boolean(path) });
 
   useEffect(() => {
+    if (!path) {
+      setState({ data: null, error: null, loading: false });
+      return;
+    }
     const ctrl = new AbortController();
     setState({ data: null, error: null, loading: true });
     api(path, { signal: ctrl.signal })

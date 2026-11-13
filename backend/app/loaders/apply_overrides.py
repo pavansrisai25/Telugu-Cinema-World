@@ -27,7 +27,7 @@ GENDER = {1: "F", 2: "M"}
 
 
 def find_film(db, title):
-    films = {norm_key(f.title): f for f in db.scalars(select(Film))}
+    films = {norm_key(f.title): f for f in db.scalars(select(Film).order_by(Film.id.desc()))}
     return films.get(norm_key(title))
 
 

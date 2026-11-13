@@ -1,5 +1,13 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import SearchBox from "./SearchBox";
+
+const LINKS = [
+  ["/analytics", "Overview"],
+  ["/analytics/language-share", "Language share"],
+  ["/analytics/pan-india", "Pan-India"],
+  ["/analytics/budget", "Budget vs gross"],
+  ["/duel", "Duel"],
+];
 
 export default function Navbar() {
   const { pathname } = useLocation();
@@ -9,11 +17,29 @@ export default function Navbar() {
         <Link to="/" className="shrink-0 font-display text-lg font-bold text-gold">
           Telugu Cinema <span className="hidden text-white sm:inline">to the World</span>
         </Link>
-        {/* The home page has its own big search box */}
         {pathname !== "/" && (
           <div className="ml-auto w-full max-w-sm"><SearchBox /></div>
         )}
       </div>
+      <nav aria-label="Main" className="mx-auto max-w-6xl overflow-x-auto px-4">
+        <ul className="flex gap-5 whitespace-nowrap text-sm">
+          {LINKS.map(([to, label]) => (
+            <li key={to}>
+              <NavLink
+                to={to}
+                end
+                className={({ isActive }) =>
+                  `block border-b-2 py-2 ${
+                    isActive ? "border-gold text-gold" : "border-transparent text-muted hover:text-white"
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   );
 }

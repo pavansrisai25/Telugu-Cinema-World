@@ -136,7 +136,8 @@ def main():
 
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
-        films = {norm_key(f.title): f for f in db.scalars(select(Film))}
+        # Newest ids first, so the lowest id (your seeded film) wins if two titles match.
+        films = {norm_key(f.title): f for f in db.scalars(select(Film).order_by(Film.id.desc()))}
         run = import_collections if args.kind == "collections" else import_budgets
         ok, errors, warnings = run(db, films, path)
         db.commit()
